@@ -18,17 +18,18 @@ class NeuralNetwork(torch.nn.Module):
         logits = self.layers(x)
         return logits
 
-model = NeuralNetwork(50,3)
-print(model)
-
-num_params = sum( p.numel() for p in model.parameters() if p.requires_grad )
-print(f'Number of parameters: {num_params}')
-print(model.layers[0].weight.shape)
-
-torch.manual_seed(123)
-X = torch.rand(1,50)
-
-with torch.no_grad():
-    out = model(X)
-    out  = torch.softmax(out,dim=1)
-print(out)
+if __name__ == "__main__":
+    model = NeuralNetwork(50,3)
+    print(model)
+    
+    num_params = sum( p.numel() for p in model.parameters() if p.requires_grad )
+    print(f'Number of parameters: {num_params}')
+    print(model.layers[0].weight.shape)
+    
+    torch.manual_seed(123)
+    X = torch.rand(1,50)
+    
+    with torch.no_grad():
+        out = model(X)
+        out  = torch.softmax(out,dim=1)
+    print(out)

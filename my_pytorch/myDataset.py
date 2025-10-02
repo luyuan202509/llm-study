@@ -20,7 +20,6 @@ train_ds = ToyDataset(de.X_train,de.y_train)
 test_ds = ToyDataset(de.X_test,de.y_test)
 
 torch.manual_seed(123)
-
 train_loader = DataLoader(
     dataset = train_ds,
     batch_size = 2, # 批次大小
@@ -37,9 +36,12 @@ test_loader = DataLoader(
     drop_last = True
 )
 
+
 # 在训练循环中使用
+'''
 for batch_idx, (samples, labels) in enumerate(train_loader):
     print(f"批次 {batch_idx}:")
     print(f"  样本形状: {samples.shape}") # (batch_size, 特征数)
     print(f"  标签形状: {labels.shape}") # (batch_size,)
+'''
     # ... 将数据送入模型进行训练 ...
