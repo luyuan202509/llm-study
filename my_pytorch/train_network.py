@@ -14,15 +14,14 @@ for epoch in range(num_epochs):
     # 训练模式
     model.train()
     for batch_idx,(features,labels) in enumerate(train_loader):
-       logits = model(features)    # 向前传播
-       loss = F.cross_entropy(logits,labels) # 计算损失
-       optimizer.zero_grad()       # 清零梯度
-       loss.backward()              # 反向传播
-       optimizer.step()             # 更新参数
-       
-       print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}" 
-             f" | Batch {batch_idx:03d}/{len(train_loader):03d}" 
-             f" | Train Loss: {loss:.2f}")
+        #print(features)
+        logits = model(features)    # 向前传播
+        loss = F.cross_entropy(logits,labels) # 计算损失
+        optimizer.zero_grad()       # 清零梯度
+        loss.backward()              # 反向传播
+        optimizer.step()             # 更新参数
+        
+        print(f"Epoch: {epoch+1:03d}/{num_epochs:03d}"  f" | Batch {batch_idx:03d}/{len(train_loader):03d}" f" | Train Loss: {loss:.2f}")
     
 # 推理模式
 """
@@ -37,7 +36,7 @@ with torch.no_grad():
 def compute_accuracy(model,dataloader):
     model = model.eval()
     correct = 0.0
-    total_examples = 0    
+    total_examples = 0
     for indx,(features,labels) in enumerate(dataloader):
         with torch.no_grad():
             logits = model(features)
@@ -50,5 +49,9 @@ def compute_accuracy(model,dataloader):
     return (correct/total_examples).item()
 
 print("===============================")
-print(compute_accuracy(model,train_loader))
-print(compute_accuracy(model,test_loader))
+#print(compute_accuracy(model,train_loader))
+#print(compute_accuracy(model,test_loader))
+
+
+# 保存模型：
+torch.save(model.state_dict(), "my_pytorch/model.pth")

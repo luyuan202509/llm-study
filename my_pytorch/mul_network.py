@@ -15,6 +15,7 @@ class NeuralNetwork(torch.nn.Module):
             torch.nn.Linear(20,num_outputs),
         )
     def forward(self,x):
+       # print("哈哈哈哈：",x)
         logits = self.layers(x)
         return logits
 
