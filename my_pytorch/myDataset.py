@@ -1,6 +1,7 @@
 import torch 
 from torch.utils.data import Dataset,DataLoader
 import dataset_example as de 
+
 class ToyDataset(Dataset):
     """ 自定义数据集"""
     

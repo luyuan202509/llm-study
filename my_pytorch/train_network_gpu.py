@@ -1,19 +1,26 @@
 import torch
 import torch.nn.functional as F
-#from torch.utils.data import dataloader
+from torch.utils.data import dataloader
 from mul_network import NeuralNetwork
 from myDataset import train_loader,test_loader
 
 torch.manual_seed(123)
 model = NeuralNetwork(num_inputs=2,num_outputs=2)
-optimizer = torch.optim.SGD(model.parameters(),lr=0.5)
 
+#device = torch.device("mps")  # 定义一个默认使用gpu的设备变量
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+model = model.to(device) # 将模型转移到gpu
+
+
+optimizer = torch.optim.SGD(model.parameters(),lr=0.5)
 num_epochs = 3
 
 for epoch in range(num_epochs):
     # 训练模式
     model.train()
     for batch_idx,(features,labels) in enumerate(train_loader):
+        features = features.to(device)
+        labels = labels.to(device)
         #print(features)
         logits = model(features)    # 向前传播
         loss = F.cross_entropy(logits,labels) # 计算损失
