@@ -1,6 +1,6 @@
 import re
 
-class SimpleTokenizerV1:
+class SimpleTokenizerV2:
     """ 分词器""" 
     def __init__(self,vocab):
         self.str_to_int = vocab
@@ -9,9 +9,10 @@ class SimpleTokenizerV1:
     def encode(self,text):
         preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
         preprocessed = [
-           item.strip() for item in preprocessed if item.strip()
+           #去除空白字符
+           item.strip() for item in preprocessed if item.strip() #
         ]
-        # 使用<|unk|> 替换未在字典中的词元
+        # 使用<|unk|> 替换没在在字典中的词元
         preprocessed = [ item if item in self.str_to_int else "<|unk|>" for item in preprocessed] 
 
         ids = [self.str_to_int[item] for item in preprocessed]
