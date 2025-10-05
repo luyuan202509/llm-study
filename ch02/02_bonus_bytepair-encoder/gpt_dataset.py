@@ -41,6 +41,5 @@ class GPTDataset(Dataset):
             shuffle=shuffle,
             drop_last=drop_last,
             num_workers=num_workers
-
         )
         return dataloader
