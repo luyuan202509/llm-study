@@ -31,17 +31,16 @@ class GPTDataset(Dataset):
         return self.input_ids[idx], self.target_ids[idx]
     
 
-    def create_dataloader_v1(text,batch_size=4,max_length=512,stride=128,drop_last = True,num_workers=0):
+    def create_dataloader_v1(text,batch_size=4,max_length=512,stride=128,drop_last = True,num_workers=0,shuffle=True):
         # 初始化分词器
         tokenizer = tiktoken.get_encoding("gpt2")
         dataset = GPTDataset(text,tokenizer,max_length,stride)
         dataloader = DataLoader(
             dataset,
             batch_size=batch_size,
-            shuffle=True,
+            shuffle=shuffle,
             drop_last=drop_last,
             num_workers=num_workers
 
         )
-
-
+        return dataloader
