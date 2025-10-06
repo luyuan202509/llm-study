@@ -21,6 +21,7 @@ data_loader = gd.create_dataloader_v1(raw_text,
 
 data_iter = iter(data_loader)
 inputs,targets = next(data_iter)
+#print("input形状：",inputs.shape)
 
 vocab_size = 50257 #词汇表
 output_dim = 256 # 输出维度
@@ -31,5 +32,15 @@ token_embedding_layer = torch.nn.Embedding(vocab_size,output_dim)
 
 #应用在全部词元id上，获取所有ID嵌入向量
 token_embeddings =  token_embedding_layer(inputs)
-print(token_embeddings.shape)
+print("词元嵌入张量:",token_embeddings.shape)
+
+
+# 【位置嵌入】张量 是一个与【词元张量】一样形状的张量
+context_length = max_length
+post_embedding_layer = torch.nn.Embedding(context_length,output_dim)
+post_embeddings = post_embedding_layer(torch.arange(context_length))
+print("位置嵌入张量:",post_embeddings.shape)
+
+input_embeddings = token_embeddings + post_embeddings
+print("位置嵌入和词元嵌入相加得到‘输入嵌入’：",input_embeddings.shape)
 
