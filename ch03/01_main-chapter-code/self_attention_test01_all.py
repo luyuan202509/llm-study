@@ -1,3 +1,5 @@
+"""简单自注意力机制"""
+
 import os,sys 
 import torch 
 
