@@ -4,9 +4,9 @@ import torch
 class SelfAttention_v1(nn.Module):
     def __init__(self,d_in,d_out):
         super().__init__()
-        self.W_query = nn.Parameter(torch.randn(d_in,d_out),requires_grad=False)
-        self.W_key   = nn.Parameter(torch.randn(d_in,d_out),requires_grad=False)
-        self.W_value = nn.Parameter(torch.randn(d_in,d_out),requires_grad=False)    
+        self.W_query = nn.Linear(torch.randn(d_in,d_out),requires_grad=False)
+        self.W_key   = nn.Linear(torch.randn(d_in,d_out),requires_grad=False)
+        self.W_value = nn.Linear(torch.randn(d_in,d_out),requires_grad=False)    
 
     def forward(self,x):
         keys     = x @ self.W_key   
