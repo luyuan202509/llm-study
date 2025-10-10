@@ -54,6 +54,15 @@ all_context_vec = attn_weights @ values
 print("掩码后的上下文向量",all_context_vec)
 
 
+print("====================dorpout 技术==============================================")
+''' 
+在对注意力权重矩阵应用 50%的 dropout 率时,矩阵中有一半的元素会随机被置为 0。为了补偿 减少的活跃元素,矩阵中剩余元素的值会按 1/0.5 = 2 的比例进行放大。
+这种放大对于维持注意力 权重的整体平衡非常重要,可以确保在训练和推理过程中,注意力机制的平均影响保持一致
+'''
+torch.manual_seed(123)
+dropout = torch.nn.Dropout(p=0.5) # 0.5 dropout 率
+example = torch.ones(6,6)
+print(dropout(example))
 
 
 
