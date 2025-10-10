@@ -39,6 +39,7 @@ row_sums = masked_simple.sum(dim=1,keepdim=True)
 mask_simple_norm = masked_simple / row_sums
 print("普通掩码操作",mask_simple_norm)
 
+
 '''更高效的掩码操作'''
 mask = torch.tril(torch.ones(context_length,context_length),diagonal=1)
 masked = attn_scores.masked_fill(mask==0,-torch.inf)
