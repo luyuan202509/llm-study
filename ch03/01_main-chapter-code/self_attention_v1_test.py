@@ -16,6 +16,7 @@ d_in = inputs.shape[1]
 d_out = 2
 
 torch.manual_seed(123)
-
 sa_v1 = SelfAttention_v1(d_in,d_out)
-print(sa_v1(inputs))
+
+context_fec =  sa_v1.forward(inputs)
+print(context_fec)
