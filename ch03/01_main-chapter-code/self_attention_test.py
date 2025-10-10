@@ -1,6 +1,8 @@
 """ 可训练的自注意力机制"""
 import torch 
 from self_attention_v1 import  SelfAttention_v1  
+from self_attention_v2 import  SelfAttention_v2
+
 
 
 inputs = torch.tensor(
@@ -17,6 +19,10 @@ d_out = 2
 
 torch.manual_seed(123)
 sa_v1 = SelfAttention_v1(d_in,d_out)
+context_vec =  sa_v1.forward(inputs)
+print(context_vec)
 
-context_fec =  sa_v1.forward(inputs)
-print(context_fec)
+
+sa_v2  = SelfAttention_v2(d_in,d_out)
+context_vec_2 =  sa_v2.forward(inputs)
+print(context_vec_2)
