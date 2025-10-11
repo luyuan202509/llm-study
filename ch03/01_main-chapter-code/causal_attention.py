@@ -10,7 +10,7 @@
 import torch.nn as nn 
 import torch
 
-class Causal_attention(nn.Module):
+class CausalAttention(nn.Module):
 
     def __init__(self,d_in,d_out,context_length,qkv_bias=False,dropout=0.5):
         super().__init__()

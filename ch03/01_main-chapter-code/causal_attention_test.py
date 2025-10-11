@@ -4,7 +4,7 @@
 import torch 
 from self_attention_v1 import  SelfAttention_v1  
 from self_attention_v2 import  SelfAttention_v2
-from causal_attention import Causal_attention
+from causal_attention import CausalAttention
 
 inputs = torch.tensor(
   [[0.43, 0.15, 0.89], # Your     (x^1)
@@ -27,7 +27,7 @@ context_length = batch.shape[1]
 print(context_length)
 
 print("============================================================================")
-ca =  Causal_attention(d_in,d_out,context_length,0.0)
+ca =  CausalAttention(d_in,d_out,context_length,0.0)
 context_vec = ca(batch)
 
 # 最终的上下文向量
