@@ -8,13 +8,14 @@
 '''
 import torch 
 import torch.nn as nn
+from torch.nn.modules import LayerNorm
 
 
 torch.manual_seed(123)
-batch_example = torch.randn(2,3)
+batch_example = torch.randn(2,5)
 
 layer = nn.Sequential(
-    nn.Linear(3,4),nn.ReLU()
+    nn.Linear(5,6),nn.ReLU()
 )
 # 经过xian积层和激活层
 out = layer(batch_example)
@@ -47,3 +48,17 @@ print("====关闭科学计数法================================================
 torch.set_printoptions(sci_mode=False)
 print("Mean:\n", mean) 
 print("Variance:\n", var)
+
+
+print("====测试DummyLayerNorm GPT模块中的层归一化===========================================================")
+
+from _01_dummyGPT_model import DummyLayerNorm
+ln = DummyLayerNorm(emb_dim = 5)
+out_ln = ln(batch_example)
+mean = out_ln.mean(dim=-1, keepdim=True)
+var = out_ln.var(dim=-1, keepdim=True, unbiased=False)
+
+print("Mean:\n", mean)
+print("Variance:\n", var)
+
+

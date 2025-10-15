@@ -65,8 +65,15 @@ class DummyTransformerBlock(nn.Module):
 
 class DummyLayerNorm(nn.Module):
     '''层归一化：'''
-    def __init__(self,normalized_shape,eps = 1e-5):
+    def __init__(self,emb_dim):
         super().__init__()
-        
+        self.eps = 1e-5 # 
+        self.scale = nn.Parameter(torch.ones(emb_dim))
+        self.shift = nn.Parameter(torch.zeros(emb_dim))
     def forward(self,x):
-        return x
+        mean = x.mean(dim=-1,keepdim=True)
+        var = x.var(dim=-1,keepdim=True, unbiased=False)
+
+        nor_x = (x - mean) / torch.sqrt(var + self.eps)  # 减去均值，结果除以方差的平方根
+
+        return self.scale * nor_x + self.shift
