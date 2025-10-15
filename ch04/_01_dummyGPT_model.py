@@ -77,3 +77,26 @@ class DummyLayerNorm(nn.Module):
         nor_x = (x - mean) / torch.sqrt(var + self.eps)  # 减去均值，结果除以方差的平方根
 
         return self.scale * nor_x + self.shift
+
+class GELU(nn.Module):
+    """
+    GELU激活函数  类似与ReLU sigmoid
+    """
+    def __init__(self):
+        super().__init__()
+    def forward(self,x):
+        return 0.5 * x * (1+ torch.tanh(
+            torch.sqrt(torch.tensor(2.0 / torch.pi)) * (x+ 0.44715* torch.pow(x,3))
+        ))
+
+class FeedForward(nn.Module):
+    '''前馈神经网络 '''
+    def __init__(self,cfg):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(cfg['emb_dim'],4*cfg['emb_dim']),
+            GELU(),
+            nn.Linear(4*cfg['emb_dim'],cfg['emb_dim'])
+        )
+    def forward(self,x):
+        return self.layers(x)
