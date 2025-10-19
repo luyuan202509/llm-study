@@ -14,34 +14,51 @@ GPT_CONFIG_124M = {
     "qvb_bias": False,       # 查询 键 值 偏置
 }
 
+
+def generate_text_simple(model,idx,max_new_tokens,context_size):
+    '''
+    简单生成文本
+    Args:
+        model: 模型
+        idx: 输入的词元 ID 序列
+        max_new_tokens: 最大新词元数量
+        context_size: 上下文大小
+    Returns:
+        idx: 生成的词元 ID 序列
+    '''
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:,-context_size:]
+        with torch.no_grad():
+            logits = model(idx_cond)
+        logits = logits[:,-1,:]
+        probas = torch.softmax(logits,dim= -1)
+        idx_next = torch.argmax(probas,dim= -1,keepdim=True)
+        idx = torch.cat((idx,idx_next),dim=1)
+    return idx
+
+
+
 if __name__ == "__main__":
     torch.manual_seed(123)
-
-
-    
     tokenizer = tiktoken.get_encoding("gpt2")
-    batch = []
-    text1 = "Every effort moves you"
-    text2 = "Every day holds a"
-    
-    #两个文本的词元 ID 序列
-    batch.append(tokenizer.encode(text1))
-    batch.append(tokenizer.encode(text2))
+
+    start_context = "Hello, I am"
+    incoded = tokenizer.encode(start_context)
+    incoded_tensor = torch.tensor(incoded).unsqueeze(0)
 
     cfg = GPT_CONFIG_124M
     gpt_model = GPTModel(cfg)
     
-    out = gpt_model(torch.tensor(batch,dtype=torch.long))
-    print(f"input batch \n {batch}")
-    print(f'\n output shape: {out.shape}')
-    print(out)
+    gpt_model.eval()
+    out  = generate_text_simple(model = gpt_model,
+                                idx = incoded_tensor,
+                                max_new_tokens= 6,
+                                context_size=GPT_CONFIG_124M["context_length"])
 
-    # 统计模型参数张量的总参数量
-    print(f'统计模型参数张量的总参数量\n')
-    total_params = sum(p.numel() for p in gpt_model.parameters())
-    print(f"\nTotal number of parameters: {total_params:,}")    
+    # 得到生成的词元 ID 序列                           
+    print(f'Output: {out}')
+    print(f'output length:{len(out[0])}')
 
-
-    print({gpt_model.tok_emb.weight.shape})
-    print({gpt_model.out_head.weight.shape})
-    
+    # 将词元 ID 序列转换为文本  
+    decoded_text = tokenizer.decode(out.squeeze(0).tolist())
+    print(f'Decoded text: {decoded_text}')  # Hello, I am Featureiman Byeswick Exit In 
