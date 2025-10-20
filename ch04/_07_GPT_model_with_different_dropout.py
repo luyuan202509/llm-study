@@ -20,6 +20,9 @@ GPT_CONFIG_124M = {
 }
 
 """
+import torch 
+import torch.nn as nn 
+
 
 #====================================================GPT 模型===================================================
 #=== GPT 模型实现
@@ -32,7 +35,8 @@ class GPTModel(nn.Module):
         super().__init__()
         self.tok_emb = nn.Embedding(cfg['vocab_size'],cfg['emb_dim'])
         self.pos_emb = nn.Embedding(cfg['context_length'],cfg['emb_dim'])
-        self.drop_emb = nn.Dropout(cfg['drop_rate'])
+        self.drop_emb = nn.Dropout(cfg['drop_rate_emb'])  # 嵌入层的dropout
+
         
         self.trf_blocks = nn.Sequential(
             *[TransformerBlock(cfg) for _ in range(cfg['n_layers'])]
@@ -143,13 +147,13 @@ class TransformerBlock(nn.Module):
             d_out = cfg['emb_dim'],
             context_length = cfg['context_length'],
             num_heads = cfg['n_heads'],
-            dropout = cfg['drop_rate'],
-            qkv_bias = cfg['qvb_bias']
+            dropout = cfg['drop_rate_attn'], # 多头注意力机制的dropout率
+            qkv_bias = cfg['qkv_bias']
         )
         self.ff = FeedForward(cfg)
         self.norm1 = LayerNorm(cfg['emb_dim'])
         self.norm2 = LayerNorm(cfg['emb_dim'])
-        self.drop_shortcut  = nn.Dropout(cfg['drop_rate'])
+        self.drop_shortcut  = nn.Dropout(cfg['drop_rate_shortcut']) # 块连接层的dropout率
 
     def forward(self,x):
        
@@ -186,3 +190,21 @@ class LayerNorm(nn.Module):
         nor_x = (x - mean) / torch.sqrt(var + self.eps)  # 减去均值，结果除以方差的平方根
 
         return self.scale * nor_x + self.shift
+
+if __name__ == "__main__":
+
+    GPT_CONFIG_124M = {
+    "vocab_size": 50257,
+    "context_length": 1024,
+    "emb_dim": 768,
+    "n_heads": 12,
+    "n_layers": 12,
+    "drop_rate_emb": 0.1,        # NEW: dropout for embedding layers
+    "drop_rate_attn": 0.1,       # NEW: dropout for multi-head attention  
+    "drop_rate_shortcut": 0.1,   # NEW: dropout for shortcut connections  
+    "qkv_bias": False
+    }
+
+    cfg = GPT_CONFIG_124M
+    model = GPTModel(cfg)
+    print(model)
