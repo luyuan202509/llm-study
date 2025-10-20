@@ -28,6 +28,7 @@ def generate_text_simple(model,idx,max_new_tokens,context_size):
     '''
     for _ in range(max_new_tokens):
         idx_cond = idx[:,-context_size:]
+        print(f'idx_cond: {idx_cond}')
         with torch.no_grad():
             logits = model(idx_cond)
         logits = logits[:,-1,:]
@@ -45,6 +46,8 @@ if __name__ == "__main__":
     start_context = "Hello, I am"
     incoded = tokenizer.encode(start_context)
     incoded_tensor = torch.tensor(incoded).unsqueeze(0)
+    print(f'Input: {incoded}')
+    print(f'incoded_tensor: {incoded_tensor}')
 
     cfg = GPT_CONFIG_124M
     gpt_model = GPTModel(cfg)
