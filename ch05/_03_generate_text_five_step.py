@@ -52,12 +52,59 @@ if __name__ == "__main__":
         logits = model(inputs)
 
     probas = torch.softmax(logits, dim=-1) # Probability of each token in vocabulary
-    print(probas.shape) # Shape: (batch_size, num_tokens, vocab_size)
+    print(f'probas shape: {probas.shape}') # Shape: (batch_size, num_tokens, vocab_size)
+    print(f'probas: {probas}')
 
-    # 获取每个词元的概率
+    # 获取最大的概率对应的词元 ID
     token_ids =  torch.argmax(probas, dim=-1,keepdim=True)
     print(token_ids)
 
     print(f"targets batch1:{token_ids_to_text(targets[0],tokenizer)}")
     print(f"Output batch1:{token_ids_to_text(token_ids[0].squeeze(),tokenizer)}")
+
+    print('=='*20)
+    # 三维张量的高级索引方式，获取文本1的第0,1,2个词元在目标词元索引处的概率
+    text_idx = 0
+    target_probas_1 = probas[text_idx,[0,1,2],targets[text_idx]] # 第1维度，第2维度，第3维度
+    print(f'Text 1: {target_probas_1}')
+    print(f'targets[text_idx]: {targets[text_idx]}')
     
+    text_idx = 1
+    target_probas_2 = probas[text_idx,[0,1,2],targets[text_idx]]
+    print(f'Text 2: {target_probas_2}')
+    print(f'targets[text_idx]: {targets[text_idx]}')
+
+    print('=='*20)
+    # 对概率分数应用对数
+    log_probas = torch.log(torch.cat((target_probas_1,target_probas_2)))
+    print(f'log_probas: {log_probas}')
+
+    """
+    我们的目标是通过在训练过程中更新模型的权重,使平均对数概率尽可能接近 0。然而,在深度 学习中,通常的做法不是将平均对数概率升至 0,而是将负平均对数概率降至 0。负平均对数概 率就是平均对数概率乘以-1 
+    """
+
+    # 计算平均数,目标是通过在训练过程中更新模型的权重,使平均对数概率尽可能接近 0
+    avg_log_probas = torch.mean(log_probas)
+    print(f'average_log_probas: {avg_log_probas}')
+    # 计算平均对数概率的负值
+    neg_avg_log_probas = avg_log_probas * -1
+    print(f'negative_average_log_probas: {neg_avg_log_probas}')
+   
+
+    print('=='*20)
+    # 回顾一下 logits 张量和 targets 张量的形状
+    print(f'logits shape: {logits.shape}')
+    print(f'targets shape: {targets.shape}')
+    
+    flattened_logits = logits.flatten(0,1)
+    print(f'flattened logits shape: {flattened_logits.shape}')
+
+
+    logits_flat = logits.flatten(0,1)
+    targets_flat = targets.flatten()
+    print(f'logits_flat: {logits_flat.shape}')
+    print(f'targets_flag: {targets_flat.shape}')
+
+    # 计算损失
+    loss = torch.nn.functional.cross_entropy(logits_flat,targets_flat)
+    print(f'loss: {loss}')
