@@ -4,7 +4,7 @@ class RawText:
     def __init__(self, file_path=None):
         if file_path is None:
             parent_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.file_path = os.path.join(parent_path, 'the-verdict.txt')
+            self.file_path = os.path.join(parent_path, 'ch05', 'the-verdict.txt')
         else:
             self.file_path = file_path
         self.raw_text = None

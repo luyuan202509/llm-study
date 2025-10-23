@@ -1,7 +1,8 @@
 import tiktoken  
 import torch 
 from previous_chapters import generate_text_simple,GPTModel
-
+from RawText import RawText as rt
+from gpt_dataset  import GPTDataset as gd
 def text_to_token_ids(text,tokenizer):
     '''将文本转换为词元 ID 序列'''
     encoded = tokenizer.encode(text,allowed_special={"<|endoftext|>"})
@@ -14,11 +15,36 @@ def token_ids_to_text(token_ids,tokenizer):
     text = tokenizer.decode(flat.tolist())
     return text   
 
+def calc_loss_batch(input_batch,target_batch,model,device):
+    """单个批次的损失"""
+    input_batch = input_batch.to(device)
+    target_batch = target_batch.to(device)
+    logits = model(input_batch)
+    loss = torch.nn.functional.cross_entropy(logits.flatten(0,1),target_batch.flatten())
+    return loss 
+
+def calc_loss_loader(dataloader,model,device,num_batches=None):
+    total_loss = 0.0
+
+    if len(dataloader) == 0:
+        return float("nan")
+    elif num_batches is None:
+        num_batches = len(dataloader)
+    else:
+        num_batches = min(num_batches,len(dataloader))
+    
+    for i,(input_batch,target_batch) in enumerate(dataloader):
+        if i < num_batches:
+            loss = calc_loss_batch(input_batch,target_batch,model,device)
+            total_loss += loss.item()
+        else:
+            break
+    return total_loss / num_batches
 
 if __name__ == "__main__":
     GPT_CONFIG_124M = {
         "vocab_size": 50257,     # Vocabulary size
-        "context_length": 1024,  # Context length
+        "context_length": 256,  # Context length
         "emb_dim": 768,          # Embedding dimension
         "n_heads": 12,           # Number of attention heads
         "n_layers": 12,          # Number of layers
@@ -108,3 +134,66 @@ if __name__ == "__main__":
     # 计算损失
     loss = torch.nn.functional.cross_entropy(logits_flat,targets_flat)
     print(f'loss: {loss}')
+
+    print('=='*40)
+    
+    rt = rt()
+    text_data = rt.read()
+   # print(f'raw_text: {raw_text}')
+
+    total_characters = len(text_data) 
+    total_tokens = len(tokenizer.encode(text_data)) 
+    print("Characters:", total_characters) 
+    print("Tokens:", total_tokens)
+
+
+    train_ratio = 0.9
+    split_idx = int(train_ratio * len(text_data))
+    print(split_idx)
+    train_data = text_data[:split_idx]  # 训练数据
+    val_data = text_data[split_idx:]  # 验证数据
+
+   # 创建数据加载器
+    print('=='*40)
+    torch.manual_seed(123)
+    train_loder = gd.create_dataloader_v1(
+        train_data,
+        batch_size = 2,
+        max_length = GPT_CONFIG_124M["context_length"],
+        stride = GPT_CONFIG_124M["context_length"],
+        shuffle = True,
+        drop_last = True,
+        num_workers = 0
+    )
+
+    val_loader = gd.create_dataloader_v1(
+        val_data,
+        batch_size = 2,
+        max_length = GPT_CONFIG_124M["context_length"],
+        stride = GPT_CONFIG_124M["context_length"],
+        shuffle = False,
+        drop_last = False,
+        num_workers = 0
+    )
+
+    print("Train loader size:", len(train_loder))
+    for x,y in train_loder:
+        print(f"Inputs shape: {x.shape}")
+        print(f"Targets shape: {y.shape}")
+    
+    print("Val loader size:", len(val_loader))
+    for x,y in val_loader:
+        print(f"Inputs shape: {x.shape}")
+        print(f"Targets shape: {y.shape}")
+
+
+    print(f'计算损失','=='*40)
+
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    model = model.to(device)
+    with torch.no_grad():
+        train_loss = calc_loss_loader(train_loder,model,device,num_batches=1)
+        val_loss = calc_loss_loader(val_loader,model,device,num_batches=1)
+    
+    print(train_loss)
+    print(val_loss)
