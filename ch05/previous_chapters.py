@@ -213,28 +213,39 @@ class GPTModel(nn.Module):
 
 
 def generate_text_simple(model, idx, max_new_tokens, context_size):
-    # idx is (B, T) array of indices in the current context
     for _ in range(max_new_tokens):
-
-        # Crop current context if it exceeds the supported context size
-        # E.g., if LLM supports only 5 tokens, and the context size is 10
-        # then only the last 5 tokens are used as context
         idx_cond = idx[:, -context_size:]
-
-        # Get the predictions
         with torch.no_grad():
             logits = model(idx_cond)
+        logits = logits[:, -1, :]
+        idx_next = torch.argmax(logits, dim=-1, keepdim=True)  # (batch, 1)
+        idx = torch.cat((idx, idx_next), dim=1)  # (batch, n_tokens+1)
+    return idx
 
-        # Focus only on the last time step
-        # (batch, n_token, vocab_size) becomes (batch, vocab_size)
+def generate(model, idx, max_new_tokens, context_size,temperature=0.0,top_k=None,eos_id = None):
+    # 控制随机性的解码策略 温度缩放和top-k采样
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:, -context_size:]
+        with torch.no_grad():
+            logits = model(idx_cond)
         logits = logits[:, -1, :]
 
-        # Get the idx of the vocab entry with the highest logits value
-        idx_next = torch.argmax(logits, dim=-1, keepdim=True)  # (batch, 1)
+        if top_k is not None:
+            top_k_logits,_ = torch.topk(logits,top_k)
+            min_val = top_k_logits[:, -1]
+            logits = torch.where(logits < min_val,torch.tensor(float('-inf')).to(logits.device),logits)
 
-        # Append sampled index to the running sequence
-        idx = torch.cat((idx, idx_next), dim=1)  # (batch, n_tokens+1)
+        if temperature > 0:
+            logits = logits / temperature
+            probs = torch.softmax(logits,dim=-1)
+            idx_next = torch.multinomial(probs,num_samples=1)
+        else:
+            idx_next = torch.argmax(logits, dim=-1, keepdim=True)  # (batch, 1)
+        
+        if idx_next == eos_id:
+            break
 
+        idx = torch.cat((idx,idx_next),dim=1)
     return idx
 
 
