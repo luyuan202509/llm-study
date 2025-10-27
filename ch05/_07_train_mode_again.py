@@ -125,7 +125,7 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     ax2.set_xlabel("Tokens seen")
 
     fig.tight_layout()  # Adjust layout to make room
-    plt.savefig("loss-plot.pdf")
+    #plt.savefig("loss-plot.pdf")
     plt.show()
 
 # ==============================================================================================
@@ -193,6 +193,9 @@ if __name__ == "__main__":
     optimizer = torch.optim.AdamW(model.parameters(),lr=1e-3,weight_decay=0.1)
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model = model.to(device)
+    # 加载模型权重,此次训练的权重会之前保存的权重继续训练，
+    model.load_state_dict(torch.load('model.pth',map_location = device))
+    model.eval()
 
     num_epochs = 10
     train_losses,val_losses,tokens_seen = train_model_simple(
@@ -208,8 +211,6 @@ if __name__ == "__main__":
         tokenizer = tokenizer
     )
 
-    # 保存模型权重
-    torch.save(model.state_dict(), "model.pth")
 
     epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
     plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)

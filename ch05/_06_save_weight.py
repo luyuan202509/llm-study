@@ -210,6 +210,8 @@ if __name__ == "__main__":
 
     # 保存模型权重
     torch.save(model.state_dict(), "model.pth")
+    # 保存模型权重和优化器状态
+
 
     epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
     plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
