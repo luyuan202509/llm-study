@@ -209,8 +209,15 @@ if __name__ == "__main__":
     )
 
     # 保存模型权重
-    torch.save(model.state_dict(), "model.pth")
+    #torch.save(model.state_dict(), "model.pth")
     # 保存模型权重和优化器状态
+    torch.save(
+        {
+            "model_state_dict":model.state_dict(),
+            "optimizer_state_dict":optimizer.state_dict(),
+        },
+        "model_and_optimizer.pth"
+    )
 
 
     epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))

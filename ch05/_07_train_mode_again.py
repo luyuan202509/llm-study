@@ -190,12 +190,18 @@ if __name__ == "__main__":
 
 
     model = GPTModel(GPT_CONFIG_124M)
-    optimizer = torch.optim.AdamW(model.parameters(),lr=1e-3,weight_decay=0.1)
+    #optimizer = torch.optim.AdamW(model.parameters(),lr=1e-3,weight_decay=0.1)
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model = model.to(device)
     # 加载模型权重,此次训练的权重会之前保存的权重继续训练，
-    model.load_state_dict(torch.load('model.pth',map_location = device))
-    model.eval()
+    #model.load_state_dict(torch.load('model.pth',map_location = device))
+    
+    checkpoint = torch.load("model_and_optimizer.pth",map_location = device)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer = torch.optim.AdamW(model.parameters(),lr=5e-4,weight_decay=0.1)
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    model.train()
+
 
     num_epochs = 10
     train_losses,val_losses,tokens_seen = train_model_simple(
