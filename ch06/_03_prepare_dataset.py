@@ -44,14 +44,6 @@ def random_split(df,train_frac,validation_frac):
     return train_df,validation_df,test_df
 
 
-# 将“string”类别标签"ham"和"spam"分别转换为整数类别标签 0 和 1:
-def convert_label_to_int(df):
-    df["Label"] = df["Label"].map({"ham":0,"spam":1})
-    return df
-
-
-
-
 if __name__ == "__main__":
     extracted_path = "sms_spam_collection" 
     data_file_path = Path(extracted_path) / "SMSSpamCollection.tsv"
@@ -69,12 +61,4 @@ if __name__ == "__main__":
 
     train_df.to_csv("dataset/train.csv", index=None)
     validation_df.to_csv("dataset/validation.csv", index=None)
-    test_df.to_csv("dataset/test.csv", index=None)
-
-    
-    
-
-
-    
-
-    
+    test_df.to_csv("dataset/test.csv", index=None)    
