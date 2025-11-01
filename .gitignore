@@ -46,3 +46,4 @@ Thumbs.db
 # 其他文件或文件夹
 /test 
 /test/*
+ch05/models/*
