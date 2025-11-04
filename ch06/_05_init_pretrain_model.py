@@ -1,5 +1,10 @@
 import torch 
-from previous_chapters import GPTModel
+from previous_chapters import GPTModel,load_weights_into_gpt
+from gpt_download import download_and_load_gpt2
+# 下载模型配置和权重
+settings,params = download_and_load_gpt2(model_size="124M",models_dir="models")
+
+
 
 CHOOSE_MODEL = "gpt2-small (124M)"
 INPUT_PROMPT = "Every effort moves"
@@ -20,5 +25,14 @@ model_config = {
 
 BASE_CONFIG.update(model_config[CHOOSE_MODEL])
 
+#print(model)
+
+model_size = CHOOSE_MODEL.split(" ")[-1].lstrip("(").rstrip(")")
+# 下载模型配置和权重
+settings, params = download_and_load_gpt2( model_size=model_size, models_dir="gpt2" )
+# 初始化模型
 model = GPTModel(BASE_CONFIG)
-print(model)
+# 加载权重
+load_weights_into_gpt(model,params)
+model.eval()
+
