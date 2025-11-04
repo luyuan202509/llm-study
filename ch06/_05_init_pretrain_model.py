@@ -66,3 +66,41 @@ token_ids = generate_text_simple(
     context_size = BASE_CONFIG["context_length"]
 )
 print("分类验证模型垃圾消息分类器：",token_ids_to_text(token_ids,tokenizer))
+
+
+print("\n\n============================================================================================\n  ")
+# 查看模型机构
+print("模型结构：",model)
+
+## 添加分类头
+torch.manual_seed(123)
+num_classes = 2
+#model = GPTModel(BASE_CONFIG)
+model.out_head = torch.nn.Linear(
+    in_features=BASE_CONFIG["emb_dim"],
+    out_features=num_classes,bias=False
+)
+
+# 使最终层归一化和最后一个 Transformer 块可训练
+for param in model.final_norm.parameters():
+    param.requires_grad = True
+for param in model.trf_blocks[-1].parameters():
+    param.requires_grad = True
+
+print("\n\n============================================================================================\n  ")
+inputs = tokenizer.encode("Do you have time")
+inputs = torch.tensor(inputs).unsqueeze(0)
+print("Inputs:", inputs)
+print("Inputs dimensions:", inputs.shape)
+
+# 生成文本
+with torch.no_grad():
+    logits = model(inputs)
+
+print("Logits dimensions:", logits.shape)
+print("Logits:", logits)
+
+print("\n\n============================================================================================\n  ")
+# 只关注最后一个词元
+print("Last output token:", logits[:, -1, :])
+
