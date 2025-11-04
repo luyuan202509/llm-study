@@ -1,8 +1,12 @@
 import torch 
-from previous_chapters import GPTModel,load_weights_into_gpt
+from previous_chapters import GPTModel,load_weights_into_gpt,generate_text_simple,text_to_token_ids, token_ids_to_text
 from gpt_download import download_and_load_gpt2
 # 下载模型配置和权重
 settings,params = download_and_load_gpt2(model_size="124M",models_dir="models")
+
+import tiktoken
+tokenizer = tiktoken.get_encoding("gpt2")
+
 
 
 
@@ -36,3 +40,12 @@ model = GPTModel(BASE_CONFIG)
 load_weights_into_gpt(model,params)
 model.eval()
 
+
+text_1 = "Every effort moves you"
+token_ids = generate_text_simple(
+    model = model,
+    idx = text_to_token_ids(text_1,tokenizer),
+    max_new_tokens = 15,
+    context_size = BASE_CONFIG["context_length"]
+)
+print("验证模型输出：",token_ids_to_text(token_ids,tokenizer))
