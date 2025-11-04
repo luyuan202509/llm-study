@@ -47,3 +47,5 @@ Thumbs.db
 /test 
 /test/*
 ch05/models/*
+/ch06/models/*
+/ch06/gpt2/*
