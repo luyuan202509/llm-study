@@ -1,7 +1,8 @@
 import torch 
 from previous_chapters import GPTModel,load_weights_into_gpt,generate_text_simple,text_to_token_ids, token_ids_to_text
 from gpt_download import download_and_load_gpt2,get_settings_and_params
-
+from _04_prepare_dataset import SpamDataset 
+from torch.utils.data import DataLoader
 
 # 下载模型配置和权重
 #settings,params = download_and_load_gpt2(model_size="124M",models_dir="models")
@@ -10,6 +11,56 @@ settings,params = get_settings_and_params(model_size="124M",models_dir="models")
 
 import tiktoken
 tokenizer = tiktoken.get_encoding("gpt2")
+
+def calc_accuracy_loader(data_loader,model,device,num_batches=None):
+    """计算数据加载器的准确率"""
+    model.eval()
+    correct_predictions, num_examples = 0, 0
+    if num_batches is  None:
+        num_batches = len(data_loader)
+    else:
+        num_batches = min(num_batches,len(data_loader))
+    
+    for i,(input_batch,target_batch) in enumerate(data_loader):
+        if i< num_batches:
+            input_batch = input_batch.to(device)
+            target_batch = target_batch.to(device)
+
+            with torch.no_grad():
+                logits = model(input_batch)[:, -1, :]  # [batch_size, num_classes]
+                logits
+                predicted_labels = torch.argmax(logits, dim=-1)  # [batch_size]
+            num_examples += predicted_labels.shape[0]
+            correct_predictions += (
+                (predicted_labels == target_batch).sum().item()
+            )
+        else:
+            break;
+    
+    return correct_predictions / num_examples
+
+def calc_loss_batch(input_batch, target_batch, model, device):
+    input_batch, target_batch = input_batch.to(device), target_batch.to(device)
+    logits = model(input_batch)[:, -1, :]  # Logits of last output token
+    loss = torch.nn.functional.cross_entropy(logits, target_batch)
+    return loss
+
+def calc_loss_loader(data_loader,model,device,num_batches=None):
+    total_loss = 0.0
+    if len(data_loader) == 0:
+        return float("nan")
+    elif num_batches is None:
+        num_batches = len(data_loader)
+    else:
+        num_batches = min(num_batches,len(data_loader))
+    for i,(input_batch,target_batch) in enumerate(data_loader):
+        if i< num_batches:
+            loss = calc_loss_batch(input_batch,target_batch,model,device)
+            total_loss += loss.item()
+        else:
+            break
+    return total_loss / num_batches
+
 
 
 
@@ -104,3 +155,68 @@ print("\n\n=====================================================================
 # 只关注最后一个词元
 print("Last output token:", logits[:, -1, :])
 
+print("============================================================================================\n  ")
+print("计算准确率")
+train_dataset = SpamDataset(
+csv_file="dataset/train.csv",
+max_length=None,
+tokenizer=tokenizer
+) 
+
+val_dataset = SpamDataset(
+csv_file="dataset/validation.csv",
+max_length=None,
+tokenizer=tokenizer
+) 
+
+test_dataset = SpamDataset(
+csv_file="dataset/test.csv",
+max_length=None,
+tokenizer=tokenizer
+) 
+
+
+num_workers = 0
+batch_size = 8
+torch.manual_seed(123)
+
+train_loader = DataLoader(
+    dataset = train_dataset,
+    batch_size = batch_size,
+    shuffle = True,
+    num_workers = num_workers,
+    drop_last = True
+)
+val_loader = DataLoader(
+    dataset = val_dataset,
+    batch_size = batch_size,
+    num_workers = num_workers,
+    drop_last = True
+)
+test_loader = DataLoader(
+    dataset = test_dataset,
+    batch_size = batch_size,
+    num_workers = num_workers,
+    drop_last = False
+)
+
+
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+model = model.to(device)
+torch.manual_seed(123) 
+train_accuracy = calc_accuracy_loader(train_loader,model,device,num_batches=10)
+val_accuracy = calc_accuracy_loader(val_loader,model,device,num_batches=10)
+test_accuracy = calc_accuracy_loader(test_loader,model,device,num_batches=10)
+print(f"Train accuracy:{train_accuracy*100:0.2f}%", )
+print(f"Val accuracy:{val_accuracy*100:0.2f}%", )
+print(f"Test accuracy:{test_accuracy*100:0.2f}%", )
+
+print("\n\n============================================================================================\n  ")
+print("计算损失")
+with torch.no_grad():
+    train_loss = calc_loss_loader(train_loader,model,device,num_batches=5)
+    val_loss = calc_loss_loader(val_loader,model,device,num_batches=5)
+    test_loss = calc_loss_loader(test_loader,model,device,num_batches=5)
+print(f"Train loss:{train_loss:0.3f}", )
+print(f"Val loss:{val_loss:0.3f}", )
+print(f"Test loss:{test_loss:0.3f}", )
