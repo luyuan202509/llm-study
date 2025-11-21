@@ -10,6 +10,7 @@ with open(file,'r',encoding="utf-8") as f:
     raw_text = f.read()
     #print(raw_text[:99])
     preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', raw_text) 
+    #去除空白字符
     preprocessed = [item.strip() for item in preprocessed if item.strip()]
     
     # 词元转换为词元 ID

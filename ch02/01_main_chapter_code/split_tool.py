@@ -1,6 +1,6 @@
 import re
 
-text = "Hello, world. This, is a test."
+text = "Hello, world.  This, is a test."
 
 # 使用你注释中的思路 - 匹配空白字符和单引号
 #regular = re.compile(r"(\s+|[^\w\s])") 

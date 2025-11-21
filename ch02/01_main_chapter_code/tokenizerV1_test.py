@@ -3,9 +3,12 @@ import token
 from SimpleTokenizerV1 import SimpleTokenizerV1
 import re
 
-paren_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-file_path = os.path.join(paren_path,'01_main_chapter_code')
-file = file_path + '/the-verdict.txt'
+parenpath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+file = os.path.join(parenpath,'the-verdict.txt')
+
+#paren_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#file_path = os.path.join(paren_path,'01_main_chapter_code')
+#file = file_path + '/the-verdict.txt'
 with open(file,'r',encoding="utf-8") as f:
     raw_text = f.read()
     #print(raw_text[:99])
@@ -30,7 +33,7 @@ with open(file,'r',encoding="utf-8") as f:
     
     text = """"It's the last he painted, you know, Mrs. Gisburn said with pardonable pride."""
     ids = tokenizer.encode(text)
-   # print(ids)
+    print(ids)
 
    # text2 = "Hello, do you like tea?" # 不在数据集中，会报错
     #print(tokenizer.encode(text2))
