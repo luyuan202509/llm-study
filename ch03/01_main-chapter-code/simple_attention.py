@@ -18,12 +18,15 @@ query = inputs[1]
 # 第二个向量注意力权重
 attn_score_2 = torch.empty(inputs.shape[0])
 for i,x_i in enumerate(inputs):
-  attn_score_2[i] = torch.dot(x_i,query)
+    print(f"x_i: {x_i}")
+    attn_score_2[i] = torch.dot(x_i,query)
 
-print(attn_score_2)
+print(f"attn_score_2 shape: {attn_score_2.shape}")
+print(f"初始注意力分数:: {attn_score_2}")
 
 # 归一化的注意力权重
 attn_weights_2 = torch.softmax(attn_score_2,dim=0)
+print(f"归一化之后的注意力分数：{attn_weights_2}")
 
 # 上下文向量： Z
 context_vec_2 = torch.zeros(query.shape)
@@ -46,7 +49,7 @@ attn_weights = torch.softmax(attn_scores,dim=-1)
 
 # 所有 词嵌入向量 的所有上下文向量 
 all_context_vec = attn_weights @ inputs
-print(all_context_vec)
+#print(all_context_vec)
 
 # 至此，所有简单自注意力机制的代码的讲解到此结束，接下来介绍的是，如何实现可训练的自注意力机制。   
 

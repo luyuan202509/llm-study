@@ -11,30 +11,31 @@ inputs = torch.tensor(
    [0.05, 0.80, 0.55]] # step     (x^6)
 )
 
-x_2 = inputs[1] 
-d_in = inputs.shape[1] #  
-dout = 2 
+x_2 = inputs[1]  # [0.55, 0.87, 0.66]
+d_in = inputs.shape[1] #
+dout = 2
+print(f"输入维度： {d_in}")
+print(f"输出维度： {dout}")
 
 ########################################
 #############   权重矩阵    #############
 ########################################
 torch.manual_seed(123)
-W_query = torch.nn.Parameter(torch.rand(d_in,dout),requires_grad=False)
+W_query = torch.nn.Parameter(torch.rand(d_in,dout),requires_grad=False) # (3,2)
 W_key   = torch.nn.Parameter(torch.rand(d_in,dout),requires_grad=False)
 W_value = torch.nn.Parameter(torch.rand(d_in,dout),requires_grad=False)
 
 
 print("========================query向量=========================================")
 
-key_2   = x_2 @ W_key
-query_2 = x_2 @ W_query # (1,2)
+key_2   = x_2 @ W_key #（1，，3） * （3，,2） = (1,2)
+query_2 = x_2 @ W_query
 value_2 = x_2 @ W_value
+print(query_2)
+
 
 keys = inputs @ W_query
 values = inputs @ W_value
-
-print(query_2)
-
 
 
 print("=======================score 分数向量=======================================")
@@ -44,7 +45,7 @@ print("=======================score 分数向量================================
 keys_2 = keys[1]
 # query 2 的注意力分数
 attn_score_22 = query_2.dot(keys_2)
-print(attn_score_22)
+print(f"query 2 的注意力分数 attn_score_22 : {attn_score_22}")
 
 attn_scores_2 = query_2 @ keys.T
 print(attn_scores_2)

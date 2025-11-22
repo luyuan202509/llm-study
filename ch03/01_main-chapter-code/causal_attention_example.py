@@ -19,7 +19,7 @@ inputs = torch.tensor(
    [0.05, 0.80, 0.55]] # step     (x^6)
 )
 
-d_in = inputs.shape[1]
+d_in = inputs.shape[1]  # 3
 d_out = 2
 sa_v2=  SelfAttention_v2(d_in,d_out)
 

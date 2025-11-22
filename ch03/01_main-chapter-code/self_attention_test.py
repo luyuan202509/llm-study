@@ -13,8 +13,9 @@ inputs = torch.tensor(
    [0.77, 0.25, 0.10], # one      (x^5)
    [0.05, 0.80, 0.55]] # step     (x^6)
 )
+print(inputs.shape)
 
-d_in = inputs.shape[1]
+d_in = inputs.shape[1] # 3
 d_out = 2
 
 torch.manual_seed(123)
