@@ -34,22 +34,25 @@ def format_input(entry):
     return instruction_text + input_text
 
 class InstructionDataset(Dataset):
-    def __init__(self, data):
+    def __init__(self, data,tokenizer):
         self.data = data
-        self.tokenizer = tiktoken.get_encoding("gpt2")
+        # Pre-tokenize texts
         self.encoded_texts = []
         for entry in data:
-            instruction_plus_input = self.tokenizer.encode(format_input(entry))
+            instruction_plus_input = format_input(entry)
             response_text = f"\n\n### Response:\n{entry['output']}"
             full_text = instruction_plus_input + response_text
-            self.encoded_texts.append(full_text)
+            self.encoded_texts.append(
+                tokenizer.encode(full_text)
+            )
+
         
     
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, idx):
-        return self.data[idx]
+       return self.encoded_texts[idx]
 
 
 def custom_collate_draft_1(batch,pad_token_id=50256,device="cpu"):
@@ -138,16 +141,45 @@ def main1():
     train_data = data[:int(len(data) * 0.8)]
     val_data = data[int(len(data) * 0.8):int(len(data) * 0.9)]
     test_data = data[int(len(data) * 0.9):]
-                                                           
-    
+
+
     num_workers = 0
     batch_size = 8
     torch.manual_seed(123)
-    
+    tokenizer = tiktoken.get_encoding("gpt2")
 
+    train_dataset = InstructionDataset(train_data,tokenizer)
+    train_loader = DataLoader(train_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=True,
+                                   drop_last=True,
+                                   num_workers=num_workers)
+
+    val_dataset = InstructionDataset(val_data,tokenizer)
+    val_loader = DataLoader(val_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=False,
+                                   drop_last=False,
+                                   num_workers=num_workers)
+
+    test_dataset = InstructionDataset(test_data,tokenizer)
+    test_loader = DataLoader(test_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=False,
+                                   drop_last=False,
+                                   num_workers=num_workers)
+    
+    print("输入数据dataloader: \n ")
+    for inputs,targets in train_loader:
+        print(inputs[0])
+
+    
 
 
 
 
 if __name__ == "__main__":
-    pass 
+    main1()
