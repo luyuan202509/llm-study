@@ -7,6 +7,15 @@ import torch
 from torch.utils.data import DataLoader
 from functools import partial
 
+from gpt_download import download_and_load_gpt2
+from previous_chapters import GPTModel, load_weights_into_gpt
+
+from previous_chapters import (
+    generate,
+    text_to_token_ids,
+    token_ids_to_text
+)
+
 def download_and_load_file(file_path, url):
     if not os.path.exists(file_path):
         with urllib.request.urlopen(url) as response:
@@ -44,9 +53,7 @@ class InstructionDataset(Dataset):
             full_text = instruction_plus_input + response_text
             self.encoded_texts.append(
                 tokenizer.encode(full_text)
-            )
-
-        
+            ) 
     
     def __len__(self):
         return len(self.data)
@@ -175,6 +182,70 @@ def main1():
     print("输入数据dataloader: \n ")
     for inputs,targets in train_loader:
         print(inputs[0])
+        print(targets[0])
+        break 
+    
+    torch.manual_seed(123)
+    input_text = format_input(val_data[0])
+    print(input_text)
+
+def main2():
+    """下载数据集"""
+    file_path = "instruction-data.json"
+    url = (
+        "https://raw.githubusercontent.com/rasbt/LLMs-from-scratch"
+        "/main/ch07/01_main-chapter-code/instruction-data.json"
+    )
+    data = download_and_load_file(file_path, url)
+    tokenizer = tiktoken.get_encoding("gpt2")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    customized_collate_fn = partial(custom_collate_fn,
+                                                           device = device,
+                                                           allowed_max_length=1024)
+
+    ## 数据集划分
+
+    train_data = data[:int(len(data) * 0.8)]
+    val_data = data[int(len(data) * 0.8):int(len(data) * 0.9)]
+    test_data = data[int(len(data) * 0.9):]
+
+
+    num_workers = 0
+    batch_size = 8
+    torch.manual_seed(123)
+    tokenizer = tiktoken.get_encoding("gpt2")
+
+    train_dataset = InstructionDataset(train_data,tokenizer)
+    train_loader = DataLoader(train_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=True,
+                                   drop_last=True,
+                                   num_workers=num_workers)
+
+    val_dataset = InstructionDataset(val_data,tokenizer)
+    val_loader = DataLoader(val_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=False,
+                                   drop_last=False,
+                                   num_workers=num_workers)
+
+    test_dataset = InstructionDataset(test_data,tokenizer)
+    test_loader = DataLoader(test_dataset,
+                                   batch_size=batch_size,
+                                   collate_fn=customized_collate_fn,
+                                   shuffle=False,
+                                   drop_last=False,
+                                   num_workers=num_workers)
+    
+    torch.manual_seed(123)
+    input_text = format_input(val_data[0])
+    print(input_text)
+
+    
+
+
 
 if __name__ == "__main__":
     main1()
