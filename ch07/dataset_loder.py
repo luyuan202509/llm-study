@@ -176,10 +176,5 @@ def main1():
     for inputs,targets in train_loader:
         print(inputs[0])
 
-    
-
-
-
-
 if __name__ == "__main__":
     main1()
