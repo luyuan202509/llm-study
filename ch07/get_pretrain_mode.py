@@ -3,7 +3,7 @@ from previous_chapters import GPTModel,load_weights_into_gpt,generate_text_simpl
 
 BASE_CONFIG = { "vocab_size": 50257, # 词汇表大小 
                 "context_length": 1024, # 上下文长度 
-                "drop_rate": 0.0, # dropout 率 
+                "drop_rate": 0.01, # dropout 率 
                 "qkv_bias": True # 查询-键-值偏置 
 }
 
