@@ -2,7 +2,7 @@ import tiktoken
 import torch 
 from previous_chapters import generate_text_simple,GPTModel
 from RawText import RawText as rt
-from gpt_dataset  import GPTDataset as gd
+from gpt_dataset import GPTDataset as gd,create_dataloader_v1
 def text_to_token_ids(text,tokenizer):
     '''将文本转换为词元 ID 序列'''
     encoded = tokenizer.encode(text,allowed_special={"<|endoftext|>"})
@@ -156,7 +156,7 @@ if __name__ == "__main__":
    # 创建数据加载器
     print('=='*40)
     torch.manual_seed(123)
-    train_loder = gd.create_dataloader_v1(
+    train_loder = create_dataloader_v1(
         train_data,
         batch_size = 2,
         max_length = GPT_CONFIG_124M["context_length"],

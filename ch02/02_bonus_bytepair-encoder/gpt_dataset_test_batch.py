@@ -1,5 +1,5 @@
 import os 
-from gpt_dataset import GPTDataset as gd
+from gpt_dataset import GPTDataset as gd,create_dataloader_v1
 parenpath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 file = os.path.join(parenpath,'the-verdict.txt')
 """创建数据集-单批次
@@ -8,7 +8,7 @@ file = os.path.join(parenpath,'the-verdict.txt')
 with open(file,'r',encoding="utf-8") as f:
     raw_text = f.read()
 
-    dataloader = gd.create_dataloader_v1(raw_text,
+    dataloader = create_dataloader_v1(raw_text,
                                       batch_size=8,
                                       max_length=4,
                                       stride = 4,

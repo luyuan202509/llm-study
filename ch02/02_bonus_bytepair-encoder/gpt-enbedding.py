@@ -1,5 +1,5 @@
 import torch
-from gpt_dataset import GPTDataset as gd
+from gpt_dataset import GPTDataset as gd,create_dataloader_v1
 from RawText import RawText as rt
 
 # 这里模拟词元一个只有4个词元ID的ID列表
@@ -12,7 +12,7 @@ raw_text = rt.read()
 #print(token_embedding_layer(torch.tensor([1])))
 
 max_length = 4
-data_loader = gd.create_dataloader_v1(raw_text,
+data_loader = create_dataloader_v1(raw_text,
                                       batch_size=8,
                                       max_length=max_length,
                                       stride = max_length,

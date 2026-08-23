@@ -11,3 +11,5 @@ with open(file,'r',encoding="utf-8") as f:
     
     enc_text = tokenizer.encode(raw_text)
     print("Total number of character:",len(enc_text))
+    print(enc_text[:20])
+    print(tokenizer.decode(enc_text[:20]))

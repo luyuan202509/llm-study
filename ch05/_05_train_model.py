@@ -1,6 +1,6 @@
 import torch    
 from previous_chapters import generate_text_simple,GPTModel,generate
-from gpt_dataset import GPTDataset as gd
+from gpt_dataset import GPTDataset as gd,create_dataloader_v1
 from RawText import RawText as rt
 import tiktoken
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # 创建数据加载器
     print('=='*40)
     torch.manual_seed(123)
-    train_loader = gd.create_dataloader_v1(
+    train_loader = create_dataloader_v1(
         train_data,
         batch_size = 2,
         max_length = GPT_CONFIG_124M["context_length"],
@@ -177,7 +177,7 @@ if __name__ == "__main__":
         num_workers = 0
     )
 
-    val_loader = gd.create_dataloader_v1(
+    val_loader = create_dataloader_v1(
         val_data,
         batch_size = 2,
         max_length = GPT_CONFIG_124M["context_length"],
